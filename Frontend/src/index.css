@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+/* ── Design Tokens ───────────────────────────────────────── */
+@theme {
+  --color-bg: #FAFAFB;
+  --color-card: #FFFFFF;
+  --color-border: #ECEEF2;
+  --color-border-secondary: #F3F4F6;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-text-muted: #9CA3AF;
+  --color-accent: #6366F1;
+  --color-green: #22C55E;
+  --color-amber: #F59E0B;
+  --color-red: #EF4444;
+  --color-green-bg: #F0FDF4;
+  --color-amber-bg: #FFFBEB;
+  --color-red-bg: #FEF2F2;
+  --color-green-border: #BBF7D0;
+  --color-amber-border: #FDE68A;
+  --color-red-border: #FECACA;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ── Base ──────────────────────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* ── Markdown Prose ────────────────────────────────────── */
+.prose p {
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+.prose strong {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.prose em {
+  font-style: italic;
+}
+
+.prose ul,
+.prose ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  color: var(--color-text-secondary);
+}
+
+.prose li {
+  margin-bottom: 0.375rem;
+  line-height: 1.65;
+}
+
+.prose code {
+  font-size: 0.85em;
+  background: var(--color-border-secondary);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  color: var(--color-text-primary);
+}
+
+.prose pre {
+  background: var(--color-text-primary);
+  color: #E5E7EB;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--color-border);
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  color: var(--color-text-muted);
+}
+
+/* ── Textarea ──────────────────────────────────────────── */
+textarea {
+  font-family: var(--font-sans);
+}
+
+textarea:focus {
+  outline: none;
+}
+
+/* ── Keyframes ─────────────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
