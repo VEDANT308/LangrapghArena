@@ -1,66 +1,68 @@
 import express from "express";
+import cors from "cors";
 import useGraph from "./services/graph.ai.service.js";
-import { success } from "zod";
 
 const app = express();
 
-// Parse JSON bodies
+// Middleware
 app.use(express.json());
 
-// CORS middleware for frontend
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Content-Type");
-    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    if (req.method === "OPTIONS") {
-        res.sendStatus(200);
-        return;
-    }
-    next();
-});
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"],
+        credentials: true,
+    })
+);
 
-app.get("/health", (_, res) => {
-    res.json({
+// Health Check
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        success: true,
         status: "ok",
     });
 });
 
-// Original GET endpoint (kept for backwards compatibility)
-app.get("/", async (_, res) => {
+// Test Route
+app.get("/", async (req, res) => {
     try {
         const result = await useGraph(
             "What is the capital of France and Japan?"
         );
 
-        res.json(result);
+        return res.status(200).json({
+            success: true,
+            result,
+        });
     } catch (err) {
         console.error(err);
-        res.status(500).json({
-            error: "Something went wrong",
+
+        return res.status(500).json({
+            success: false,
+            error: "Something went wrong.",
         });
     }
 });
 
-// POST endpoint for frontend
+// Main API Route
 app.post("/invoke", async (req, res) => {
     try {
-        const { problem } = req.body;
+        const { input } = req.body;
 
-        if (!problem || typeof problem !== "string") {
+        if (!input || typeof input !== "string") {
             return res.status(400).json({
                 success: false,
-                error: "A 'problem' string is required in the request body.",
+                error: "An 'input' string is required.",
             });
         }
 
-        const result = await useGraph(problem);
+        const result = await useGraph(input);
 
         return res.status(200).json({
             success: true,
             message: "Graph executed successfully.",
-            data: result,
+            result,
         });
-
     } catch (err) {
         console.error(err);
 

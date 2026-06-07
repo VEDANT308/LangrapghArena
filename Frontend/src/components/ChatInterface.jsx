@@ -3,6 +3,7 @@ import UserMessage from './UserMessage';
 import ArenaResponse, { API_URL } from './ArenaResponse';
 import LoadingSkeleton from './LoadingSkeleton';
 import axios from "axios"
+import { data, input } from 'framer-motion/client';
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState([]);
@@ -21,38 +22,44 @@ export default function ChatInterface() {
 
   const handleSend = async (e) => {
     e.preventDefault();
+
     if (!inputValue.trim() || isLoading) return;
 
     const userProblem = inputValue.trim();
-    setInputValue('');
+
+    setInputValue("");
     setError(null);
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/evaluate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ problem: userProblem }),
-      });
+      const response = await axios.post(
+        "http://localhost:3000/invoke",
+        {
+          input: userProblem,
+        }
+      );
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Server error (${response.status})`);
-      }
+      console.log(response.data);
 
-      const data = await response.json();
+      const result = response.data.result;
 
       const newMessage = {
         id: Date.now(),
         problem: userProblem,
-        solution_1: data.solution_1,
-        solution_2: data.solution_2,
-        judge: data.judge,
+        solution_1: result.solution_1,
+        solution_2: result.solution_2,
+        judge: result.judge,
       };
 
       setMessages((prev) => [...prev, newMessage]);
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.');
+      console.error(err);
+
+      setError(
+        err.response?.data?.error ||
+        err.message ||
+        "Something went wrong. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
