@@ -1,5 +1,6 @@
 import express from "express";
 import useGraph from "./services/graph.ai.service.js";
+import { success } from "zod";
 
 const app = express();
 
@@ -41,23 +42,31 @@ app.get("/", async (_, res) => {
 });
 
 // POST endpoint for frontend
-app.post("/evaluate", async (req, res) => {
+app.post("/invoke", async (req, res) => {
     try {
         const { problem } = req.body;
 
         if (!problem || typeof problem !== "string") {
-            res.status(400).json({
+            return res.status(400).json({
+                success: false,
                 error: "A 'problem' string is required in the request body.",
             });
-            return;
         }
 
         const result = await useGraph(problem);
-        res.json(result);
+
+        return res.status(200).json({
+            success: true,
+            message: "Graph executed successfully.",
+            data: result,
+        });
+
     } catch (err) {
         console.error(err);
-        res.status(500).json({
-            error: "Something went wrong",
+
+        return res.status(500).json({
+            success: false,
+            error: "Something went wrong.",
         });
     }
 });
