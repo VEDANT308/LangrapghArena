@@ -63,12 +63,12 @@ app.post("/invoke", async (req, res) => {
             message: "Graph executed successfully.",
             result,
         });
-    } catch (err) {
-        console.error(err);
+    } catch (err: any) {
+        console.error("[API Error] /invoke failed:", err);
 
         return res.status(500).json({
             success: false,
-            error: "Something went wrong.",
+            error: err.message || "An unexpected error occurred during execution.",
         });
     }
 });
