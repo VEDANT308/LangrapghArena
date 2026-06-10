@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import UserMessage from './UserMessage';
-import ArenaResponse, { API_URL } from './ArenaResponse';
+import ArenaResponse from './ArenaResponse';
 import LoadingSkeleton from './LoadingSkeleton';
-import axios from "axios"
-import { data, input } from 'framer-motion/client';
+import axios from "axios";
 
+// Old chat interface
 export default function ChatInterface() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');

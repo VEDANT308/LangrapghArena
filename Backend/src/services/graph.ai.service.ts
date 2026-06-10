@@ -1,3 +1,5 @@
+// Handles battle execution and result generation
+
 import {
   StateGraph,
   StateSchema,
@@ -28,14 +30,14 @@ const state = new StateSchema({
 });
 
 const solutionNode: GraphNode<typeof state> = async (state) => {
-  const [mistralResponse, cohereResponse] = await Promise.all([
+  const [geminiResponse, mistralResponse] = await Promise.all([
+    geminiModel.invoke(state.problem),
     mistralAIModel.invoke(state.problem),
-    cohereModel.invoke(state.problem),
   ]);
 
   return {
-    solution_1: String(mistralResponse.content),
-    solution_2: String(cohereResponse.content),
+    solution_1: String(geminiResponse.content),
+    solution_2: String(mistralResponse.content),
   };
 };
 
@@ -47,8 +49,7 @@ const judgeSchema = z.object({
 });
 
 const judgeNode: GraphNode<typeof state> = async (state) => {
-  const structuredJudge =
-    geminiModel.withStructuredOutput(judgeSchema);
+  const structuredJudge = cohereModel.withStructuredOutput(judgeSchema);
 
   const response = await structuredJudge.invoke([
     new SystemMessage(`
@@ -56,21 +57,23 @@ You are an AI Judge.
 
 Evaluate both answers.
 
-Return:
-- solution_1_score (0-10)
-- solution_2_score (0-10)
-- solution_1_reasoning
-- solution_2_reasoning
+Return EXACTLY a JSON object matching this schema:
+{
+  "solution_1_score": number (0-10),
+  "solution_2_score": number (0-10),
+  "solution_1_reasoning": string,
+  "solution_2_reasoning": string
+}
     `),
 
     new HumanMessage(`
 Problem:
 ${state.problem}
 
-Solution 1:
+Solution 1 (Gemini):
 ${state.solution_1}
 
-Solution 2:
+Solution 2 (Mistral):
 ${state.solution_2}
     `),
   ]);
