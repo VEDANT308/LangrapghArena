@@ -11,8 +11,8 @@ export default function LandingPage() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-3xl -z-10 pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto px-6 py-20 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm font-semibold mb-8">
-          <Zap size={16} /> V2 Now Available
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50/80 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm font-semibold mb-8 border border-blue-200/50 dark:border-blue-800/50 shadow-sm shadow-blue-500/10 backdrop-blur-sm transition-all hover:border-blue-300 dark:hover:border-blue-700">
+          <Zap size={14} className="text-blue-500 fill-blue-500 animate-pulse" /> Neural Showdown Active
         </div>
         
         <h1 className="text-5xl md:text-7xl font-black text-zinc-900 dark:text-white tracking-tight leading-tight mb-8">
