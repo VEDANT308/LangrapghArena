@@ -10,10 +10,12 @@ export const geminiModel = new ChatGoogleGenerativeAI({
   apiKey: config.GOOGLE_API_KEY,
 });
 
+
 export const mistralAIModel = new ChatMistralAI({
   model: "mistral-medium-latest",
   apiKey: config.MISTRAL_API_KEY,
 });
+
 
 export const cohereModel = new ChatCohere({
   model: "command-a-03-2025",
