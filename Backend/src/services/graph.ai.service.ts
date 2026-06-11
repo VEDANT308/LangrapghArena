@@ -36,7 +36,7 @@ const solutionNode: GraphNode<typeof state> = async (state) => {
   console.log("[Graph] Invoking Gemini and Mistral...");
   const [geminiResult, mistralResult] = await Promise.allSettled([
     withRetry(() => withTimeout(geminiModel.invoke(state.problem), 30000, "Gemini"), 3, 1000, "Gemini"),
-    withRetry(() => withTimeout(mistralAIModel.invoke(state.problem), 30000, "Mistral"), 3, 1000, "Mistral"),
+    withRetry(() => withTimeout(mistralAIModel.invoke(state.problem), 60000, "Mistral"), 3, 1000, "Mistral"),
   ]);
 
   let solution_1 = "";
@@ -127,15 +127,27 @@ ${state.solution_2}
     const parsed = JSON.parse(content);
     return { judge: parsed };
   } catch (error: any) {
-    console.error("[Graph] Judge parsing or invocation failed:", error);
-    return {
-      judge: {
-        solution_1_score: 0,
-        solution_2_score: 0,
-        solution_1_reasoning: "Error evaluating response.",
-        solution_2_reasoning: "Error evaluating response.",
-      }
-    };
+    console.warn("[Graph] Cohere Judge failed, falling back to Gemini Judge. Error:", error.message || error);
+    try {
+      const fallbackResponse = await withRetry(
+        () => withTimeout(geminiModel.withStructuredOutput(judgeSchema).invoke(prompt), 30000, "FallbackJudge"), 
+        3, 
+        1000, 
+        "FallbackJudge"
+      );
+      console.log("[Graph] Fallback Judge response received.");
+      return { judge: fallbackResponse };
+    } catch (fallbackError: any) {
+      console.error("[Graph] Fallback Judge also failed:", fallbackError);
+      return {
+        judge: {
+          solution_1_score: 0,
+          solution_2_score: 0,
+          solution_1_reasoning: "Error evaluating response (All judges failed).",
+          solution_2_reasoning: "Error evaluating response (All judges failed).",
+        }
+      };
+    }
   }
 };
 

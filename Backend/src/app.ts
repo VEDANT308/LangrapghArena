@@ -9,7 +9,7 @@ app.use(express.json());
 
 app.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: ["https://langrapgh-arena.vercel.app", "http://localhost:5173"],
         methods: ["GET", "POST"],
         credentials: true,
     })
