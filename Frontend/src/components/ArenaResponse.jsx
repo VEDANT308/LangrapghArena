@@ -4,7 +4,6 @@ import { useState } from 'react';
 
 // Arena response component
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 function MarkdownRenderer({ content }) {
   return (
@@ -162,5 +161,4 @@ export default function ArenaResponse({ solution1, solution2, judge }) {
     </div>
   );
 }
-
-export { API_URL };
+

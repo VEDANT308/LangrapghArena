@@ -23,8 +23,12 @@ export async function withTimeout<T>(promise: Promise<T>, ms: number, name: stri
   }
 }
 
+// HTTP status codes that are never worth retrying
+const NON_RETRYABLE_CODES = new Set([400, 401, 403, 404, 422]);
+
 /**
  * Retries an async function with exponential backoff.
+ * Fast-fails on non-retryable errors (auth failures, bad requests).
  * @param fn The async function to retry.
  * @param maxRetries Maximum number of retries.
  * @param baseDelayMs Base delay for exponential backoff.
@@ -33,8 +37,8 @@ export async function withTimeout<T>(promise: Promise<T>, ms: number, name: stri
  */
 export async function withRetry<T>(
   fn: () => Promise<T>,
-  maxRetries: number = 3,
-  baseDelayMs: number = 1000,
+  maxRetries: number = 2,
+  baseDelayMs: number = 500,
   name: string = "Operation"
 ): Promise<T> {
   let attempt = 0;
@@ -43,15 +47,21 @@ export async function withRetry<T>(
       return await fn();
     } catch (error: any) {
       attempt++;
-      console.warn(`[Retry] ${name} failed on attempt ${attempt}/${maxRetries}. Error: ${error.message}`);
-      
+
+      // Fast-fail on non-retryable errors (bad API key, invalid request, etc.)
+      const statusCode = error?.status || error?.response?.status;
+      if (statusCode && NON_RETRYABLE_CODES.has(statusCode)) {
+        console.error(`[Retry] ${name} failed with non-retryable status ${statusCode}. Aborting.`);
+        throw error;
+      }
+
       if (attempt >= maxRetries) {
         console.error(`[Retry] ${name} exhausted all ${maxRetries} retries.`);
         throw error;
       }
 
       const delay = baseDelayMs * Math.pow(2, attempt - 1);
-      console.log(`[Retry] ${name} waiting ${delay}ms before next attempt...`);
+      console.warn(`[Retry] ${name} attempt ${attempt}/${maxRetries} failed. Retrying in ${delay}ms...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }

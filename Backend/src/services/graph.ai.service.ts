@@ -31,32 +31,32 @@ const state = new StateSchema({
 });
 
 const solutionNode: GraphNode<typeof state> = async (state) => {
-  console.log(`\n[Graph] Battle started for problem: "${state.problem.substring(0, 50)}..."`);
+  const startTime = Date.now();
+  console.log(`[Graph] Battle started for: "${state.problem.substring(0, 60)}..."`);
   
-  console.log("[Graph] Invoking Gemini and Mistral...");
   const [geminiResult, mistralResult] = await Promise.allSettled([
-    withRetry(() => withTimeout(geminiModel.invoke(state.problem), 30000, "Gemini"), 3, 1000, "Gemini"),
-    withRetry(() => withTimeout(mistralAIModel.invoke(state.problem), 60000, "Mistral"), 3, 1000, "Mistral"),
+    withRetry(() => withTimeout(geminiModel.invoke(state.problem), 45000, "Gemini"), 2, 500, "Gemini"),
+    withRetry(() => withTimeout(mistralAIModel.invoke(state.problem), 45000, "Mistral"), 2, 500, "Mistral"),
   ]);
 
   let solution_1 = "";
   let solution_2 = "";
 
   if (geminiResult.status === "fulfilled") {
-    console.log("[Graph] Gemini response received.");
     solution_1 = String(geminiResult.value.content);
   } else {
-    console.error("[Graph] Gemini failed:", geminiResult.reason);
+    console.error("[Graph] Gemini failed:", geminiResult.reason?.message || geminiResult.reason);
     solution_1 = `Error: Gemini failed to respond. Reason: ${geminiResult.reason}`;
   }
 
   if (mistralResult.status === "fulfilled") {
-    console.log("[Graph] Mistral response received.");
     solution_2 = String(mistralResult.value.content);
   } else {
-    console.error("[Graph] Mistral failed:", mistralResult.reason);
+    console.error("[Graph] Mistral failed:", mistralResult.reason?.message || mistralResult.reason);
     solution_2 = `Error: Mistral failed to respond. Reason: ${mistralResult.reason}`;
   }
+
+  console.log(`[Graph] Solutions complete in ${Date.now() - startTime}ms`);
 
   return {
     solution_1,
@@ -72,7 +72,7 @@ const judgeSchema = z.object({
 });
 
 const judgeNode: GraphNode<typeof state> = async (state) => {
-  console.log("[Graph] Invoking Judge (Cohere)...");
+  const startTime = Date.now();
   
   if (state.solution_1.startsWith("Error:") && state.solution_2.startsWith("Error:")) {
     console.warn("[Graph] Both models failed. Skipping Judge.");
@@ -87,34 +87,27 @@ const judgeNode: GraphNode<typeof state> = async (state) => {
   }
 
   const prompt = [
-    new SystemMessage(`
-You are an AI Judge.
-
-Evaluate both answers.
+    new SystemMessage(`You are an AI Judge. Evaluate both answers concisely.
 
 Return EXACTLY a JSON object matching this schema:
 {
   "solution_1_score": number (0-10),
   "solution_2_score": number (0-10),
-  "solution_1_reasoning": string,
-  "solution_2_reasoning": string
-}
-    `),
-    new HumanMessage(`
-Problem:
+  "solution_1_reasoning": string (2-3 sentences),
+  "solution_2_reasoning": string (2-3 sentences)
+}`),
+    new HumanMessage(`Problem:
 ${state.problem}
 
 Solution 1 (Gemini):
 ${state.solution_1}
 
 Solution 2 (Mistral):
-${state.solution_2}
-    `),
+${state.solution_2}`),
   ];
 
   try {
-    const response = await withRetry(() => withTimeout(cohereModel.invoke(prompt), 30000, "Judge"), 3, 1000, "Judge");
-    console.log("[Graph] Judge response received.");
+    const response = await withRetry(() => withTimeout(cohereModel.invoke(prompt), 30000, "Judge"), 2, 500, "Judge");
     
     let content = String(response.content).trim();
     // Strip markdown formatting if Cohere included it
@@ -125,20 +118,21 @@ ${state.solution_2}
     }
 
     const parsed = JSON.parse(content);
+    console.log(`[Graph] Judge complete in ${Date.now() - startTime}ms`);
     return { judge: parsed };
   } catch (error: any) {
-    console.warn("[Graph] Cohere Judge failed, falling back to Gemini Judge. Error:", error.message || error);
+    console.warn("[Graph] Cohere Judge failed, falling back to Gemini.");
     try {
       const fallbackResponse = await withRetry(
         () => withTimeout(geminiModel.withStructuredOutput(judgeSchema).invoke(prompt), 30000, "FallbackJudge"), 
-        3, 
-        1000, 
+        2, 
+        500, 
         "FallbackJudge"
       );
-      console.log("[Graph] Fallback Judge response received.");
+      console.log(`[Graph] Fallback Judge complete in ${Date.now() - startTime}ms`);
       return { judge: fallbackResponse };
     } catch (fallbackError: any) {
-      console.error("[Graph] Fallback Judge also failed:", fallbackError);
+      console.error("[Graph] All judges failed.");
       return {
         judge: {
           solution_1_score: 0,
@@ -160,7 +154,10 @@ const graph = new StateGraph(state)
   .compile();
 
 export default async function useGraph(problem: string) {
-  return await graph.invoke({
+  const startTime = Date.now();
+  const result = await graph.invoke({
     problem,
   });
+  console.log(`[Graph] Total battle time: ${Date.now() - startTime}ms`);
+  return result;
 }

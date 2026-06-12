@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import UserMessage from './UserMessage';
 import ArenaResponse from './ArenaResponse';
 import LoadingSkeleton from './LoadingSkeleton';
-import axios from "axios";
+import api from "../lib/api";
 
 // Old chat interface
 export default function ChatInterface() {
@@ -32,9 +32,8 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const response = await axios.post(
-        `${API_URL}/invoke`,
+      const response = await api.post(
+        "/invoke",
         {
           input: userProblem,
         }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 // Application state context
 
@@ -12,10 +12,16 @@ export function AppProvider({ children }) {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
-  // Battle History State
+  // Battle History State (persisted to localStorage — survives browser close)
   const [history, setHistory] = useState(() => {
     const savedHistory = localStorage.getItem('battleHistory');
     return savedHistory ? JSON.parse(savedHistory) : [];
+  });
+
+  // Current Battle State (persisted to sessionStorage — survives refresh, clears on tab close)
+  const [currentBattle, setCurrentBattle] = useState(() => {
+    const saved = sessionStorage.getItem('currentBattle');
+    return saved ? JSON.parse(saved) : null;
   });
 
   // Apply theme class to body
@@ -26,23 +32,38 @@ export function AppProvider({ children }) {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  // Persist currentBattle to sessionStorage whenever it changes
+  useEffect(() => {
+    if (currentBattle) {
+      sessionStorage.setItem('currentBattle', JSON.stringify(currentBattle));
+    } else {
+      sessionStorage.removeItem('currentBattle');
+    }
+  }, [currentBattle]);
+
   const toggleTheme = () => {
     setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const addBattleToHistory = (battle) => {
-    const newHistory = [battle, ...history];
-    setHistory(newHistory);
-    localStorage.setItem('battleHistory', JSON.stringify(newHistory));
-  };
+  const addBattleToHistory = useCallback((battle) => {
+    setHistory(prev => {
+      const newHistory = [battle, ...prev];
+      localStorage.setItem('battleHistory', JSON.stringify(newHistory));
+      return newHistory;
+    });
+  }, []);
 
-  const clearHistory = () => {
+  const clearHistory = useCallback(() => {
     setHistory([]);
     localStorage.removeItem('battleHistory');
-  };
+  }, []);
 
   return (
-    <AppContext.Provider value={{ theme, toggleTheme, history, addBattleToHistory, clearHistory }}>
+    <AppContext.Provider value={{
+      theme, toggleTheme,
+      history, addBattleToHistory, clearHistory,
+      currentBattle, setCurrentBattle,
+    }}>
       {children}
     </AppContext.Provider>
   );

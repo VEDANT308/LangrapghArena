@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import UserMessage from '../components/UserMessage';
 import ArenaResponse from '../components/ArenaResponse';
 import LoadingSkeleton from '../components/LoadingSkeleton';
-import axios from "axios";
+import api from "../lib/api";
 import { useAppContext } from '../context/AppContext';
 import PromptTemplates from '../components/PromptTemplates';
 import { Hexagon, Cpu } from 'lucide-react';
@@ -10,13 +10,12 @@ import { Hexagon, Cpu } from 'lucide-react';
 // Arena page
 
 export default function ArenaPage() {
-  const [currentBattle, setCurrentBattle] = useState(null);
+  const { currentBattle, setCurrentBattle, addBattleToHistory } = useAppContext();
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [pendingPrompt, setPendingPrompt] = useState('');
   const endOfMessagesRef = useRef(null);
-  
-  const { addBattleToHistory } = useAppContext();
 
   const scrollToBottom = () => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -32,17 +31,18 @@ export default function ArenaPage() {
     const problemToSend = directPrompt || inputValue;
     if (!problemToSend.trim() || isLoading) return;
 
+    const prompt = problemToSend.trim();
+    setPendingPrompt(prompt);
     setCurrentBattle(null);
     setInputValue("");
     setError(null);
     setIsLoading(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const response = await axios.post(
-        `${API_URL}/invoke`,
+      const response = await api.post(
+        "/invoke",
         {
-          input: problemToSend.trim(),
+          input: prompt,
         }
       );
 
@@ -51,7 +51,7 @@ export default function ArenaPage() {
       const newBattle = {
         id: Date.now(),
         date: new Date().toISOString(),
-        problem: problemToSend.trim(),
+        problem: prompt,
         solution_1: result.solution_1,
         solution_2: result.solution_2,
         judge: result.judge,
@@ -67,9 +67,10 @@ export default function ArenaPage() {
         err.message ||
         "Something went wrong. Please try again."
       );
-      setInputValue(problemToSend);
+      setInputValue(prompt);
     } finally {
       setIsLoading(false);
+      setPendingPrompt('');
     }
   };
 
@@ -129,7 +130,7 @@ export default function ArenaPage() {
 
             {isLoading && (
               <div className="mb-12 animate-slide-up mt-8">
-                <UserMessage message={inputValue || "Initializing new battle..."} />
+                <UserMessage message={pendingPrompt || "Initializing new battle..."} />
                 <LoadingSkeleton />
               </div>
             )}

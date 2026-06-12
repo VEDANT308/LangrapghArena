@@ -1,10 +1,48 @@
+import { useState, useEffect } from 'react';
+
 export default function LoadingSkeleton() {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsed(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatTime = (seconds) => {
+    if (seconds < 60) return `${seconds}s`;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m ${secs}s`;
+  };
+
   return (
     <div className="flex flex-col gap-8 my-8 px-4 w-full animate-fade-in">
+      {/* Status indicator */}
+      <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-full">
+          <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+          <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+            {elapsed < 5
+              ? 'Sending to models...'
+              : elapsed < 15
+              ? 'Models are generating responses...'
+              : elapsed < 30
+              ? 'Waiting for AI responses...'
+              : 'Judge is evaluating...'
+            }
+          </span>
+          <span className="text-xs font-mono text-blue-500 dark:text-blue-400">
+            {formatTime(elapsed)}
+          </span>
+        </div>
+      </div>
+
       {/* Two solution skeletons */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <SkeletonCard color="emerald" label="Solution 1" />
-        <SkeletonCard color="violet" label="Solution 2" />
+        <SkeletonCard color="emerald" label="Gemini" />
+        <SkeletonCard color="violet" label="Mistral" />
       </div>
 
       {/* Judge skeleton */}
