@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 config();
-const defaultOrigins = ["http://localhost:5173", "http://localhost:3000"];
+const defaultOrigins = ["http://localhost:5173", "http://localhost:3000", "https://lang-grapgh-arena.vercel.app"];
 const rawCorsOrigin = process.env.CORS_ORIGIN;
 let CORS_ORIGIN = [...defaultOrigins];
 if (rawCorsOrigin) {
