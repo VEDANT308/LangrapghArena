@@ -15,7 +15,7 @@ export default function LandingPage() {
           <Zap size={14} className="text-blue-500 fill-blue-500 animate-pulse" /> Neural Showdown Active
         </div>
         
-        <h1 className="text-5xl md:text-7xl font-black text-zinc-900 dark:text-white tracking-tight leading-tight mb-8">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-zinc-900 dark:text-white tracking-tight leading-tight mb-6 md:mb-8">
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-500">LangGraphArena</span>
         </h1>
         
@@ -42,7 +42,7 @@ export default function LandingPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left mt-12 border-t border-zinc-200 dark:border-zinc-800 pt-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-left mt-8 md:mt-12 border-t border-zinc-200 dark:border-zinc-800 pt-12 md:pt-20">
           <div className="bg-white/50 dark:bg-zinc-900/50 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800">
             <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center mb-4">
               <Swords size={24} />

@@ -17,7 +17,7 @@ export default function DashboardPage() {
   const winRateMistral = totalBattles ? Math.round((mistralWins / totalBattles) * 100) : 0;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto animate-fade-in">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto animate-fade-in">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">Dashboard</h1>
         <p className="text-zinc-500 dark:text-zinc-400 mt-2">Overview of your AI battle statistics.</p>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
               const isTie = winner === 'Tie';
 
               return (
-                <div key={battle.id} className="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center justify-between">
+                <div key={battle.id} className="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex-1 min-w-0 pr-4">
                     <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
                       {battle.problem}

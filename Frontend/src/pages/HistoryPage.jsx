@@ -15,7 +15,7 @@ export default function HistoryPage() {
   );
 
   return (
-    <div className="p-8 max-w-6xl mx-auto animate-fade-in">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">Battle History</h1>
@@ -93,7 +93,7 @@ export default function HistoryPage() {
                     </h3>
                   </div>
                   
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center justify-between md:justify-end gap-6 w-full md:w-auto mt-2 md:mt-0">
                     <div className="flex gap-4">
                       <div className="text-center">
                         <p className="text-xs text-zinc-500 mb-1">Gemini</p>

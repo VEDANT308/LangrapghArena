@@ -38,7 +38,7 @@ export default function ArenaPage() {
     setIsLoading(true);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const apiUrl = import.meta.env.VITE_API_URL || "https://langrapgharena.onrender.com";
       const response = await axios.post(
         `${apiUrl}/invoke`,
         {
@@ -155,7 +155,7 @@ export default function ArenaPage() {
         </div>
       )}
 
-      <div className="p-6 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-t border-zinc-200 dark:border-zinc-800 sticky bottom-0">
+      <div className="p-4 md:p-6 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-t border-zinc-200 dark:border-zinc-800 sticky bottom-0">
         <div className="max-w-4xl mx-auto">
           <form onSubmit={(e) => handleSend(e)} className="relative flex items-center">
             <input
@@ -164,7 +164,7 @@ export default function ArenaPage() {
               onChange={(e) => setInputValue(e.target.value)}
               placeholder={isLoading ? 'Arena is busy...' : 'Enter a challenge for the models...'}
               disabled={isLoading}
-              className="w-full bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-800 rounded-full py-4 pl-6 pr-16 focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-zinc-400 transition-shadow shadow-sm hover:shadow-md text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-800 rounded-full py-3 md:py-4 pl-4 md:pl-6 pr-14 md:pr-16 focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-zinc-400 transition-shadow shadow-sm hover:shadow-md text-base md:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <button
               type="submit"
