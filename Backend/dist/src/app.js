@@ -5,17 +5,10 @@ import config from "./config/config.js";
 
 const app = express();
 
-/**
- * Middleware
- */
 app.use(express.json());
 
-/**
- * CORS CONFIG (Production Safe)
- */
 const corsOptions = {
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-        // Allow server-to-server or mobile apps (no origin)
+    origin: (origin, callback) => {
         if (!origin) return callback(null, true);
 
         const normalizedOrigin = origin.toLowerCase().replace(/\/$/, "");
@@ -38,48 +31,28 @@ const corsOptions = {
     credentials: true,
 };
 
-/**
- * Enable CORS (IMPORTANT)
- */
 app.use(cors(corsOptions));
-// DO NOT use app.options("*") → causes crash in latest path-to-regexp
+// IMPORTANT: DO NOT use app.options("*")
 
-/**
- * Health Check
- */
 app.get("/health", (req, res) => {
-    res.status(200).json({
-        success: true,
-        status: "ok",
-    });
+    res.status(200).json({ success: true, status: "ok" });
 });
 
-/**
- * Test Route
- */
 app.get("/", async (req, res) => {
     try {
         const result = await useGraph(
             "What is the capital of France and Japan?"
         );
 
-        return res.status(200).json({
-            success: true,
-            result,
-        });
+        res.status(200).json({ success: true, result });
     } catch (err) {
-        console.error(err);
-
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             error: "Something went wrong.",
         });
     }
 });
 
-/**
- * Main API Route
- */
 app.post("/invoke", async (req, res) => {
     try {
         const { input } = req.body;
@@ -93,17 +66,17 @@ app.post("/invoke", async (req, res) => {
 
         const result = await useGraph(input);
 
-        return res.status(200).json({
+        res.status(200).json({
             success: true,
             message: "Graph executed successfully.",
             result,
         });
-    } catch (err: any) {
+    } catch (err) {
         console.error("[API Error] /invoke failed:", err);
 
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
-            error: err.message || "An unexpected error occurred during execution.",
+            error: err.message || "Unexpected error",
         });
     }
 });

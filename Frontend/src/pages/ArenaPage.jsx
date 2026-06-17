@@ -38,8 +38,9 @@ export default function ArenaPage() {
     setIsLoading(true);
 
     try {
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
       const response = await axios.post(
-        "http://localhost:3000/invoke",
+        `${apiUrl}/invoke`,
         {
           input: problemToSend.trim(),
         }

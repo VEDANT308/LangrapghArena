@@ -4,7 +4,7 @@ dotenv.config();
 
 const cohereModel = new ChatCohere({
   model: "command-a-03-2025",
-  apiKey: process.env.COHERE_API_KEY,
+  apiKey: process.env.COHERE_API_KEY || "",
 });
 
 import { HumanMessage } from "@langchain/core/messages";
